@@ -1,0 +1,157 @@
+package tui
+
+import (
+	"pos/internal/store"
+
+	tea "github.com/charmbracelet/bubbletea"
+)
+
+type screen int
+
+const (
+	screenMenu screen = iota
+	screenSale
+	screenProducts
+	screenProductForm
+	screenShrinkage
+	screenSearch
+	screenDayClose
+	screenReorder
+	screenInventory
+)
+
+type switchScreenMsg struct {
+	screen screen
+	data   any
+}
+
+type statusMsg string
+
+type App struct {
+	store       *store.Store
+	screen      screen
+	width       int
+	height      int
+	menu        menuModel
+	sale        saleModel
+	products    productsModel
+	productForm productFormModel
+	shrinkage   shrinkageModel
+	search      searchModel
+	dayClose    dayCloseModel
+	reorder     reorderModel
+	inventory   inventoryModel
+}
+
+func NewApp(s *store.Store) *App {
+	a := &App{
+		store: s,
+	}
+	a.menu = newMenuModel()
+	a.sale = newSaleModel(s)
+	a.products = newProductsModel(s)
+	a.productForm = newProductFormModel(s)
+	a.shrinkage = newShrinkageModel(s)
+	a.search = newSearchModel(s)
+	a.dayClose = newDayCloseModel(s)
+	a.reorder = newReorderModel(s)
+	a.inventory = newInventoryModel(s)
+	return a
+}
+
+func (a *App) Init() tea.Cmd {
+	return tea.SetWindowTitle("POS - Punto de Venta")
+}
+
+func (a *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	switch msg := msg.(type) {
+	case tea.WindowSizeMsg:
+		a.width = msg.Width
+		a.height = msg.Height
+		return a, nil
+
+	case tea.KeyMsg:
+		if msg.String() == "ctrl+c" {
+			return a, tea.Quit
+		}
+
+	case switchScreenMsg:
+		a.screen = msg.screen
+		switch msg.screen {
+		case screenMenu:
+			a.menu = newMenuModel()
+		case screenSale:
+			a.sale = newSaleModel(a.store)
+		case screenProducts:
+			a.products = newProductsModel(a.store)
+			return a, a.products.loadProducts()
+		case screenProductForm:
+			if p, ok := msg.data.(*productFormData); ok {
+				a.productForm = newProductFormModelWith(a.store, p)
+			} else {
+				a.productForm = newProductFormModel(a.store)
+			}
+		case screenShrinkage:
+			a.shrinkage = newShrinkageModel(a.store)
+		case screenSearch:
+			a.search = newSearchModel(a.store)
+		case screenDayClose:
+			a.dayClose = newDayCloseModel(a.store)
+			return a, a.dayClose.load()
+		case screenReorder:
+			a.reorder = newReorderModel(a.store)
+			return a, a.reorder.load()
+		case screenInventory:
+			a.inventory = newInventoryModel(a.store)
+			return a, a.inventory.load()
+		}
+		return a, nil
+	}
+
+	var cmd tea.Cmd
+	switch a.screen {
+	case screenMenu:
+		a.menu, cmd = a.menu.update(msg)
+	case screenSale:
+		a.sale, cmd = a.sale.update(msg)
+	case screenProducts:
+		a.products, cmd = a.products.update(msg)
+	case screenProductForm:
+		a.productForm, cmd = a.productForm.update(msg)
+	case screenShrinkage:
+		a.shrinkage, cmd = a.shrinkage.update(msg)
+	case screenSearch:
+		a.search, cmd = a.search.update(msg)
+	case screenDayClose:
+		a.dayClose, cmd = a.dayClose.update(msg)
+	case screenReorder:
+		a.reorder, cmd = a.reorder.update(msg)
+	case screenInventory:
+		a.inventory, cmd = a.inventory.update(msg)
+	}
+	return a, cmd
+}
+
+func (a *App) View() string {
+	switch a.screen {
+	case screenMenu:
+		return a.menu.view()
+	case screenSale:
+		return a.sale.view()
+	case screenProducts:
+		return a.products.view()
+	case screenProductForm:
+		return a.productForm.view()
+	case screenShrinkage:
+		return a.shrinkage.view()
+	case screenSearch:
+		return a.search.view()
+	case screenDayClose:
+		return a.dayClose.view()
+	case screenReorder:
+		return a.reorder.view()
+	case screenInventory:
+		return a.inventory.view()
+	}
+	return ""
+}
