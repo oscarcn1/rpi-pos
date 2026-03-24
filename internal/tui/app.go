@@ -18,6 +18,9 @@ const (
 	screenDayClose
 	screenReorder
 	screenInventory
+	screenMonthlyFinance
+	screenReturns
+	screenDayReturns
 )
 
 type switchScreenMsg struct {
@@ -40,7 +43,10 @@ type App struct {
 	search      searchModel
 	dayClose    dayCloseModel
 	reorder     reorderModel
-	inventory   inventoryModel
+	inventory       inventoryModel
+	monthlyFinance  monthlyFinanceModel
+	returns         returnsModel
+	dayReturns      dayReturnsModel
 }
 
 func NewApp(s *store.Store) *App {
@@ -56,6 +62,9 @@ func NewApp(s *store.Store) *App {
 	a.dayClose = newDayCloseModel(s)
 	a.reorder = newReorderModel(s)
 	a.inventory = newInventoryModel(s)
+	a.monthlyFinance = newMonthlyFinanceModel(s)
+	a.returns = newReturnsModel(s)
+	a.dayReturns = newDayReturnsModel(s)
 	return a
 }
 
@@ -104,6 +113,15 @@ func (a *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case screenInventory:
 			a.inventory = newInventoryModel(a.store)
 			return a, a.inventory.load()
+		case screenMonthlyFinance:
+			a.monthlyFinance = newMonthlyFinanceModel(a.store)
+			return a, a.monthlyFinance.load()
+		case screenReturns:
+			a.returns = newReturnsModel(a.store)
+			return a, a.returns.loadSales()
+		case screenDayReturns:
+			a.dayReturns = newDayReturnsModel(a.store)
+			return a, a.dayReturns.load()
 		}
 		return a, nil
 	}
@@ -128,6 +146,12 @@ func (a *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		a.reorder, cmd = a.reorder.update(msg)
 	case screenInventory:
 		a.inventory, cmd = a.inventory.update(msg)
+	case screenMonthlyFinance:
+		a.monthlyFinance, cmd = a.monthlyFinance.update(msg)
+	case screenReturns:
+		a.returns, cmd = a.returns.update(msg)
+	case screenDayReturns:
+		a.dayReturns, cmd = a.dayReturns.update(msg)
 	}
 	return a, cmd
 }
@@ -152,6 +176,12 @@ func (a *App) View() string {
 		return a.reorder.view()
 	case screenInventory:
 		return a.inventory.view()
+	case screenMonthlyFinance:
+		return a.monthlyFinance.view()
+	case screenReturns:
+		return a.returns.view()
+	case screenDayReturns:
+		return a.dayReturns.view()
 	}
 	return ""
 }

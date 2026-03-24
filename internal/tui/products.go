@@ -108,9 +108,10 @@ func (m productsModel) view() string {
 	if len(m.products) == 0 {
 		b.WriteString(dimStyle.Render("  No hay productos registrados\n"))
 	} else {
-		header := fmt.Sprintf("  %-10s %-25s %10s %10s %10s",
+		var tbl strings.Builder
+		header := fmt.Sprintf(" %-10s %-24s %10s %10s %8s",
 			"Código", "Nombre", "P.Venta", "Stock", "Tipo")
-		b.WriteString(tableHeaderStyle.Render(header) + "\n")
+		tbl.WriteString(tableHeaderRow.Render(header) + "\n")
 
 		for i, p := range m.products {
 			stockStr := p.StockLabel()
@@ -118,16 +119,16 @@ func (m productsModel) view() string {
 			if p.IsMeasured() {
 				typeStr = p.MeasurementUnit
 			}
-			line := fmt.Sprintf("  %-10s %-25s %10s %10s %10s",
-				truncate(p.Code, 10), truncate(p.Name, 25),
+			line := fmt.Sprintf(" %-10s %-24s %10s %10s %8s",
+				truncate(p.Code, 10), truncate(p.Name, 24),
 				fmtP(p.SalePrice), stockStr, typeStr)
 			if i == m.cursor {
-				b.WriteString(selectedStyle.Render(line))
+				tbl.WriteString(tableRowSelected.Render(padRight(line, 66)) + "\n")
 			} else {
-				b.WriteString(line)
+				tbl.WriteString(tableRowNormal.Render(line) + "\n")
 			}
-			b.WriteString("\n")
 		}
+		b.WriteString(tableBoxStyle.Render(tbl.String()))
 	}
 
 	b.WriteString("\n")

@@ -135,22 +135,23 @@ func (m reorderModel) view() string {
 		b.WriteString(successStyle.Render("  Todos los productos tienen stock suficiente"))
 		b.WriteString("\n")
 	} else {
-		header := fmt.Sprintf("  %-10s %-22s %10s %10s %10s",
+		var tbl strings.Builder
+		header := fmt.Sprintf(" %-10s %-22s %10s %10s %10s",
 			"Código", "Nombre", "Stock", "Mínimo", "Faltan")
-		b.WriteString(tableHeaderStyle.Render(header) + "\n")
+		tbl.WriteString(tableHeaderRow.Render(header) + "\n")
 
 		for _, item := range m.items {
 			p := item.Product
-			line := fmt.Sprintf("  %-10s %-22s %10s %10s %10s",
+			line := fmt.Sprintf(" %-10s %-22s %10s %10s %10s",
 				truncate(p.Code, 10), truncate(p.Name, 22),
 				p.StockLabel(), p.MinStockLabel(), p.FormatQty(item.Deficit))
 			if p.Stock == 0 {
-				b.WriteString(errorStyle.Render(line))
+				tbl.WriteString(errorStyle.Render(line) + "\n")
 			} else {
-				b.WriteString(warnStyle.Render(line))
+				tbl.WriteString(warnStyle.Render(line) + "\n")
 			}
-			b.WriteString("\n")
 		}
+		b.WriteString(tableBoxStyle.Render(tbl.String()))
 
 		b.WriteString(fmt.Sprintf("\n  %s\n",
 			warnStyle.Render(fmt.Sprintf("Total: %s productos necesitan reorden", fmtI(len(m.items))))))

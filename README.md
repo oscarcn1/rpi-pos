@@ -1,14 +1,15 @@
 # POS - Punto de Venta
 
-Sistema de punto de venta para tiendas pequeñas de enseres domésticos. Aplicación de terminal (TUI) escrita en Go con base de datos SQLite embebida, diseñada para ejecutarse en hardware de bajo consumo como Raspberry Pi 4.
+Sistema de punto de venta para pequeños negocios: tiendas de abarrotes, papelerías, ferreterías, tiendas de ropa, y cualquier comercio minorista. Aplicación de terminal (TUI) escrita en Go con base de datos SQLite embebida, diseñada para ejecutarse en hardware de bajo consumo como Raspberry Pi 4.
 
 ## Características
 
 - **Venta rápida** con búsqueda inteligente de productos por nombre o código (sin necesidad de acentos)
 - **Dos tipos de producto**: por unidad (piezas) y por medida (metros, kilos, litros, etc.)
 - **Control de inventario** con descuento automático de existencias al vender
+- **Devoluciones** parciales o totales con restauración automática de stock
 - **Registro de merma** con razón y cantidades decimales para productos por medida
-- **Reportes**: cierre del día, reorden de productos e inventario valorizado
+- **Reportes**: cierre del día, reorden, inventario valorizado, finanzas mensuales con gráfica, devoluciones
 - **Interfaz intuitiva** con instrucciones contextuales, colores por tipo de acción y formato de números con separador de miles
 - **Un solo binario** de ~11 MB sin dependencias externas, sin servidor web, sin navegador
 

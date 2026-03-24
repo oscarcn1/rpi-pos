@@ -74,25 +74,25 @@ func (m searchModel) view() string {
 			b.WriteString(dimStyle.Render("  Sin resultados\n"))
 		} else {
 			b.WriteString(fmt.Sprintf("  %s\n", dimStyle.Render(fmt.Sprintf("%d resultado(s)", len(m.results)))))
-			header := fmt.Sprintf("  %-10s %-20s %-10s %9s %10s %10s",
+
+			var tbl strings.Builder
+			header := fmt.Sprintf(" %-10s %-20s %-10s %10s %10s %8s",
 				"Código", "Nombre", "Categoría", "P.Venta", "Stock", "Tipo")
-			b.WriteString(tableHeaderStyle.Render(header) + "\n")
+			tbl.WriteString(tableHeaderRow.Render(header) + "\n")
 
 			for i, p := range m.results {
-				line := fmt.Sprintf("  %-10s %-20s %-10s %10s %10s %10s",
+				line := fmt.Sprintf(" %-10s %-20s %-10s %10s %10s %8s",
 					truncate(p.Code, 10), truncate(p.Name, 20), truncate(p.Category, 10),
 					fmtP(p.SalePrice), p.StockLabel(), p.UnitLabel())
 				if i == m.cursor {
-					b.WriteString(selectedStyle.Render(line))
+					tbl.WriteString(tableRowSelected.Render(padRight(line, 72)) + "\n")
+				} else if p.Stock <= p.MinStock {
+					tbl.WriteString(warnStyle.Render(line) + "\n")
 				} else {
-					if p.Stock <= p.MinStock {
-						b.WriteString(warnStyle.Render(line))
-					} else {
-						b.WriteString(line)
-					}
+					tbl.WriteString(tableRowNormal.Render(line) + "\n")
 				}
-				b.WriteString("\n")
 			}
+			b.WriteString(tableBoxStyle.Render(tbl.String()))
 		}
 	}
 

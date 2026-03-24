@@ -98,6 +98,12 @@ func migrate(db *sql.DB) error {
 		}
 	}
 
+	if version < 3 {
+		if err := migrateV3(db); err != nil {
+			return fmt.Errorf("migración v3: %w", err)
+		}
+	}
+
 	return nil
 }
 
@@ -116,5 +122,38 @@ func migrateV2(db *sql.DB) error {
 	}
 
 	_, err := db.Exec("INSERT INTO schema_version (version) VALUES (2)")
+	return err
+}
+
+func migrateV3(db *sql.DB) error {
+	stmts := []string{
+		`CREATE TABLE IF NOT EXISTS returns (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			sale_id INTEGER NOT NULL REFERENCES sales(id),
+			total REAL NOT NULL,
+			reason TEXT DEFAULT '',
+			created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+		)`,
+		`CREATE TABLE IF NOT EXISTS return_items (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			return_id INTEGER NOT NULL REFERENCES returns(id),
+			sale_item_id INTEGER NOT NULL REFERENCES sale_items(id),
+			product_id INTEGER NOT NULL REFERENCES products(id),
+			product_name TEXT NOT NULL,
+			quantity REAL NOT NULL,
+			unit_price REAL NOT NULL,
+			subtotal REAL NOT NULL
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_returns_created ON returns(created_at)`,
+		`CREATE INDEX IF NOT EXISTS idx_returns_sale ON returns(sale_id)`,
+	}
+
+	for _, stmt := range stmts {
+		if _, err := db.Exec(stmt); err != nil {
+			return err
+		}
+	}
+
+	_, err := db.Exec("INSERT INTO schema_version (version) VALUES (3)")
 	return err
 }

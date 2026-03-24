@@ -1,8 +1,16 @@
 package store
 
 import (
+	"fmt"
 	"pos/internal/models"
+	"time"
 )
+
+var timeNow = time.Now
+
+func timeDate(year, month, day int) time.Time {
+	return time.Date(year, time.Month(month), day, 0, 0, 0, 0, time.Local)
+}
 
 func (s *Store) DayCloseReport() (*models.DayReport, error) {
 	r := &models.DayReport{}
@@ -104,6 +112,113 @@ func (s *Store) InventoryReport() (*models.InventoryReport, error) {
 	r.PotentialProfit = r.TotalSaleValue - r.TotalCostValue
 
 	return r, nil
+}
+
+func (s *Store) MonthlyFinanceReport(year, month int) (*models.MonthlyFinanceReport, error) {
+	start := fmt.Sprintf("%04d-%02d-01 00:00:00", year, month)
+
+	// Next month start
+	ny, nm := year, month+1
+	if nm > 12 {
+		nm = 1
+		ny++
+	}
+	end := fmt.Sprintf("%04d-%02d-01 00:00:00", ny, nm)
+
+	// Previous month bounds
+	py, pm := year, month-1
+	if pm < 1 {
+		pm = 12
+		py--
+	}
+	prevStart := fmt.Sprintf("%04d-%02d-01 00:00:00", py, pm)
+
+	// Days in month
+	daysInMonth := daysIn(year, month)
+
+	r := &models.MonthlyFinanceReport{
+		Year:        year,
+		Month:       month,
+		DaysInMonth: daysInMonth,
+	}
+
+	// Daily sales
+	r.DailySales = make([]models.DailySales, daysInMonth)
+	for i := range r.DailySales {
+		r.DailySales[i].Day = i + 1
+	}
+
+	rows, err := s.db.Query(
+		`SELECT CAST(strftime('%d', created_at) AS INTEGER) AS day, COUNT(*), COALESCE(SUM(total), 0)
+		 FROM sales WHERE created_at >= ? AND created_at < ?
+		 GROUP BY day ORDER BY day`, start, end,
+	)
+	if err == nil {
+		defer rows.Close()
+		for rows.Next() {
+			var day, count int
+			var total float64
+			rows.Scan(&day, &count, &total)
+			if day >= 1 && day <= daysInMonth {
+				r.DailySales[day-1] = models.DailySales{Day: day, Count: count, Total: total}
+				r.TotalSales += count
+				r.TotalIncome += total
+			}
+		}
+	}
+
+	// Total cost
+	s.db.QueryRow(
+		`SELECT COALESCE(SUM(si.quantity * si.cost_per_unit), 0)
+		 FROM sale_items si JOIN sales s ON si.sale_id = s.id
+		 WHERE s.created_at >= ? AND s.created_at < ?`, start, end,
+	).Scan(&r.TotalCost)
+
+	r.Profit = r.TotalIncome - r.TotalCost
+
+	// Average daily (days elapsed so far)
+	elapsed := daysInMonth
+	now := timeNow()
+	if year == now.Year() && month == int(now.Month()) {
+		elapsed = now.Day()
+	}
+	if elapsed > 0 {
+		r.AvgDailySales = r.TotalIncome / float64(elapsed)
+	}
+
+	// Shrinkage
+	s.db.QueryRow(
+		`SELECT COALESCE(SUM(quantity), 0) FROM shrinkage
+		 WHERE created_at >= ? AND created_at < ?`, start, end,
+	).Scan(&r.TotalShrinkage)
+
+	// Previous month
+	s.db.QueryRow(
+		`SELECT COALESCE(COUNT(*), 0), COALESCE(SUM(total), 0)
+		 FROM sales WHERE created_at >= ? AND created_at < ?`, prevStart, start,
+	).Scan(&r.PrevSales, &r.PrevIncome)
+
+	s.db.QueryRow(
+		`SELECT COALESCE(SUM(si.quantity * si.cost_per_unit), 0)
+		 FROM sale_items si JOIN sales s ON si.sale_id = s.id
+		 WHERE s.created_at >= ? AND s.created_at < ?`, prevStart, start,
+	).Scan(&r.PrevCost)
+
+	r.PrevProfit = r.PrevIncome - r.PrevCost
+	r.HasPrev = r.PrevSales > 0
+
+	return r, nil
+}
+
+func daysIn(year, month int) int {
+	// First day of next month, minus one day
+	ny, nm := year, month+1
+	if nm > 12 {
+		nm = 1
+		ny++
+	}
+	t := timeDate(ny, nm, 1).AddDate(0, 0, -1)
+	return t.Day()
 }
 
 func (s *Store) ReorderReport() ([]models.ReorderItem, error) {

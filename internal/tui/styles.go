@@ -63,6 +63,25 @@ var (
 				Foreground(lipgloss.Color("245")).
 				Italic(true).
 				PaddingLeft(2)
+
+	// Table with border for list screens
+	tableBoxStyle = lipgloss.NewStyle().
+			Border(lipgloss.RoundedBorder()).
+			BorderForeground(lipgloss.Color("240")).
+			Padding(0, 1)
+
+	tableRowSelected = lipgloss.NewStyle().
+				Background(lipgloss.Color("27")).
+				Foreground(lipgloss.Color("255")).
+				Bold(true)
+
+	tableRowNormal = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("252"))
+
+	tableHeaderRow = lipgloss.NewStyle().
+			Bold(true).
+			Foreground(lipgloss.Color("229")).
+			Underline(true)
 )
 
 func hSep() string { return hkDim.Render(" · ") }

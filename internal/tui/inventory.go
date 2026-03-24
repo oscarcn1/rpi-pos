@@ -77,21 +77,20 @@ func (m inventoryModel) view() string {
 	if len(r.Categories) > 0 {
 		b.WriteString(subtitleStyle.Render("  Por categoría:"))
 		b.WriteString("\n")
-		catHeader := fmt.Sprintf("  %-20s %6s %14s %14s",
+		var catTbl strings.Builder
+		catHeader := fmt.Sprintf(" %-20s %6s %14s %14s",
 			"Categoría", "Prods", "Costo", "Venta")
-		b.WriteString(tableHeaderStyle.Render(catHeader) + "\n")
+		catTbl.WriteString(tableHeaderRow.Render(catHeader) + "\n")
 		for _, c := range r.Categories {
-			b.WriteString(fmt.Sprintf("  %-20s %6s %14s %14s\n",
+			catTbl.WriteString(fmt.Sprintf(" %-20s %6s %14s %14s\n",
 				truncate(c.Category, 20), fmtI(c.Products), fmtP(c.CostValue), fmtP(c.SaleValue)))
 		}
-		b.WriteString("\n")
+		b.WriteString(tableBoxStyle.Render(catTbl.String()))
+		b.WriteString("\n\n")
 	}
 
 	b.WriteString(subtitleStyle.Render("  Detalle de productos:"))
 	b.WriteString("\n")
-	header := fmt.Sprintf("  %-10s %-20s %10s %12s %12s",
-		"Código", "Nombre", "Stock", "Val.Costo", "Val.Venta")
-	b.WriteString(tableHeaderStyle.Render(header) + "\n")
 
 	maxVisible := 15
 	start := m.scroll
@@ -100,27 +99,32 @@ func (m inventoryModel) view() string {
 		end = len(r.Items)
 	}
 
+	var tbl strings.Builder
+	header := fmt.Sprintf(" %-10s %-20s %10s %12s %12s",
+		"Código", "Nombre", "Stock", "Val.Costo", "Val.Venta")
+	tbl.WriteString(tableHeaderRow.Render(header) + "\n")
+
 	for i := start; i < end; i++ {
 		item := r.Items[i]
 		p := item.Product
-		line := fmt.Sprintf("  %-10s %-20s %10s %12s %12s",
+		line := fmt.Sprintf(" %-10s %-20s %10s %12s %12s",
 			truncate(p.Code, 10), truncate(p.Name, 20),
 			p.StockLabel(), fmtP(item.CostValue), fmtP(item.SaleValue))
 		if p.Stock == 0 {
-			b.WriteString(errorStyle.Render(line))
+			tbl.WriteString(errorStyle.Render(line) + "\n")
 		} else if p.Stock <= p.MinStock {
-			b.WriteString(warnStyle.Render(line))
+			tbl.WriteString(warnStyle.Render(line) + "\n")
 		} else {
-			b.WriteString(line)
+			tbl.WriteString(tableRowNormal.Render(line) + "\n")
 		}
-		b.WriteString("\n")
 	}
+	b.WriteString(tableBoxStyle.Render(tbl.String()))
 
 	if len(r.Items) > maxVisible {
-		b.WriteString(dimStyle.Render(fmt.Sprintf("\n  Mostrando %s-%s de %s productos",
+		b.WriteString("\n" + dimStyle.Render(fmt.Sprintf("  Mostrando %s-%s de %s productos",
 			fmtI(start+1), fmtI(end), fmtI(len(r.Items)))))
-		b.WriteString("\n")
 	}
+	b.WriteString("\n")
 
 	b.WriteString("\n")
 	b.WriteString("  " + hKey(hkNav, "↑↓", "desplazar") + hSep() + hKey(hkNav, "esc/enter", "volver al menú"))

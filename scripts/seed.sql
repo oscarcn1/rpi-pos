@@ -1,4 +1,4 @@
--- Productos de ejemplo: Tienda de Enseres Domésticos
+-- Productos de ejemplo para demostración
 -- Categoría: Cocina
 INSERT OR IGNORE INTO products (code, name, description, category, purchase_price, sale_price, stock, min_stock) VALUES
 ('COC001', 'Sartén antiadherente 26cm', 'Sartén con recubrimiento antiadherente', 'Cocina', 85.00, 159.00, 15, 5),

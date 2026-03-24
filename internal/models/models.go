@@ -174,3 +174,70 @@ type InventoryItem struct {
 	CostValue float64
 	SaleValue float64
 }
+
+type DailySales struct {
+	Day   int
+	Count int
+	Total float64
+}
+
+type MonthlyFinanceReport struct {
+	Year        int
+	Month       int
+	DaysInMonth int
+
+	DailySales    []DailySales
+	TotalSales    int
+	TotalIncome   float64
+	TotalCost     float64
+	Profit        float64
+	AvgDailySales float64
+	TotalShrinkage float64
+
+	PrevIncome float64
+	PrevCost   float64
+	PrevProfit float64
+	PrevSales  int
+	HasPrev    bool
+}
+
+type Return struct {
+	ID        int64
+	SaleID    int64
+	Total     float64
+	Reason    string
+	Items     []ReturnItem
+	CreatedAt time.Time
+}
+
+type ReturnItem struct {
+	ID          int64
+	ReturnID    int64
+	SaleItemID  int64
+	ProductID   int64
+	ProductName string
+	Quantity    float64
+	UnitPrice   float64
+	Subtotal    float64
+}
+
+type SaleDetail struct {
+	Sale  Sale
+	Items []SaleItem
+}
+
+type DayReturnsReport struct {
+	Date          string
+	TotalReturns  int
+	TotalAmount   float64
+	Returns       []ReturnSummary
+}
+
+type ReturnSummary struct {
+	ID        int64
+	SaleID    int64
+	Total     float64
+	Reason    string
+	ItemCount int
+	CreatedAt time.Time
+}
