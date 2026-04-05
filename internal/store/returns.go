@@ -104,20 +104,20 @@ func (s *Store) CreateReturn(ret *models.Return) error {
 	return tx.Commit()
 }
 
-func (s *Store) DayReturnsReport() (*models.DayReturnsReport, error) {
+func (s *Store) DayReturnsReport(date string) (*models.DayReturnsReport, error) {
 	r := &models.DayReturnsReport{}
-	s.db.QueryRow(`SELECT DATE('now', 'localtime')`).Scan(&r.Date)
+	r.Date = date
 
 	s.db.QueryRow(
 		`SELECT COALESCE(COUNT(*), 0), COALESCE(SUM(total), 0)
-		 FROM returns WHERE DATE(created_at) = DATE('now', 'localtime')`,
+		 FROM returns WHERE DATE(created_at) = ?`, date,
 	).Scan(&r.TotalReturns, &r.TotalAmount)
 
 	rows, err := s.db.Query(
 		`SELECT r.id, r.sale_id, r.total, r.reason,
 		 (SELECT COUNT(*) FROM return_items WHERE return_id = r.id), r.created_at
-		 FROM returns r WHERE DATE(r.created_at) = DATE('now', 'localtime')
-		 ORDER BY r.created_at DESC`,
+		 FROM returns r WHERE DATE(r.created_at) = ?
+		 ORDER BY r.created_at DESC`, date,
 	)
 	if err != nil {
 		return r, nil

@@ -348,11 +348,11 @@ func (m returnsModel) viewSalesList(b *strings.Builder) {
 		return
 	}
 
-	start := m.salesCur - 7
+	start := m.salesCur - 5
 	if start < 0 {
 		start = 0
 	}
-	end := start + 15
+	end := start + 10
 	if end > len(m.sales) {
 		end = len(m.sales)
 	}
@@ -375,7 +375,7 @@ func (m returnsModel) viewSalesList(b *strings.Builder) {
 	}
 	b.WriteString(tableBoxStyle.Render(tbl.String()))
 
-	if len(m.sales) > 15 {
+	if len(m.sales) > 10 {
 		b.WriteString("\n" + dimStyle.Render(fmt.Sprintf("  Mostrando %s-%s de %s ventas",
 			fmtI(start+1), fmtI(end), fmtI(len(m.sales)))))
 	}

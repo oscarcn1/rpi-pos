@@ -4,7 +4,10 @@ import (
 	"pos/internal/store"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
+
+var screenMargin = lipgloss.NewStyle().PaddingLeft(2).PaddingTop(1)
 
 type screen int
 
@@ -157,31 +160,32 @@ func (a *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (a *App) View() string {
+	var v string
 	switch a.screen {
 	case screenMenu:
-		return a.menu.view()
+		v = a.menu.view()
 	case screenSale:
-		return a.sale.view()
+		v = a.sale.view()
 	case screenProducts:
-		return a.products.view()
+		v = a.products.view()
 	case screenProductForm:
-		return a.productForm.view()
+		v = a.productForm.view()
 	case screenShrinkage:
-		return a.shrinkage.view()
+		v = a.shrinkage.view()
 	case screenSearch:
-		return a.search.view()
+		v = a.search.view()
 	case screenDayClose:
-		return a.dayClose.view()
+		v = a.dayClose.view()
 	case screenReorder:
-		return a.reorder.view()
+		v = a.reorder.view()
 	case screenInventory:
-		return a.inventory.view()
+		v = a.inventory.view()
 	case screenMonthlyFinance:
-		return a.monthlyFinance.view()
+		v = a.monthlyFinance.view()
 	case screenReturns:
-		return a.returns.view()
+		v = a.returns.view()
 	case screenDayReturns:
-		return a.dayReturns.view()
+		v = a.dayReturns.view()
 	}
-	return ""
+	return screenMargin.Render(v)
 }
