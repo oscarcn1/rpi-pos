@@ -52,10 +52,7 @@ func (m inventoryModel) update(msg tea.Msg) (inventoryModel, tea.Cmd) {
 func (m inventoryModel) view() string {
 	var b strings.Builder
 
-	b.WriteString("\n")
-	b.WriteString(titleStyle.Render(" Reporte de Inventario "))
-	b.WriteString("\n")
-	b.WriteString(instructionStyle.Render("Vista completa del inventario con valores. Usa flechas para desplazarte."))
+	b.WriteString(subtitleStyle.Render("  Reporte de Inventario"))
 	b.WriteString("\n\n")
 
 	if m.report == nil {
@@ -92,7 +89,7 @@ func (m inventoryModel) view() string {
 	b.WriteString(subtitleStyle.Render("  Detalle de productos:"))
 	b.WriteString("\n")
 
-	maxVisible := 8
+	maxVisible := 6
 	start := m.scroll
 	end := start + maxVisible
 	if end > len(r.Items) {

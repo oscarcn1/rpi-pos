@@ -61,10 +61,7 @@ func (m searchModel) update(msg tea.Msg) (searchModel, tea.Cmd) {
 func (m searchModel) view() string {
 	var b strings.Builder
 
-	b.WriteString("\n")
-	b.WriteString(titleStyle.Render(" Buscar Producto "))
-	b.WriteString("\n")
-	b.WriteString(instructionStyle.Render("Escribe parte del nombre, código o categoría. No necesitas acentos."))
+	b.WriteString(subtitleStyle.Render("  Buscar Producto"))
 	b.WriteString("\n\n")
 
 	b.WriteString("  " + m.input.View() + "\n\n")

@@ -236,23 +236,13 @@ func (m productFormModel) save() (productFormModel, tea.Cmd) {
 func (m productFormModel) view() string {
 	var b strings.Builder
 
-	title := " Nuevo Producto "
+	title := "Nuevo Producto"
 	if m.editing != nil {
-		title = " Editar Producto "
+		title = "Editar Producto"
 	}
-	b.WriteString("\n")
-	b.WriteString(titleStyle.Render(title))
-	b.WriteString("\n")
-
+	b.WriteString(subtitleStyle.Render("  " + title))
 	if m.measured {
-		b.WriteString(instructionStyle.Render(
-			"Producto por medida: P.Compra es por unidad de compra (rollo, bolsa),"))
-		b.WriteString("\n")
-		b.WriteString(instructionStyle.Render(
-			"P.Venta es por unidad de medida (metro, kg). Stock es en unidades de medida."))
-	} else {
-		b.WriteString(instructionStyle.Render(
-			"Llena los campos del producto. Usa Tab para avanzar y Ctrl+S para guardar."))
+		b.WriteString("  " + dimStyle.Render("P.Compra por unidad de compra · P.Venta por unidad de medida"))
 	}
 	b.WriteString("\n\n")
 

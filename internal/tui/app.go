@@ -72,7 +72,7 @@ func NewApp(s *store.Store) *App {
 }
 
 func (a *App) Init() tea.Cmd {
-	return tea.SetWindowTitle("POS - Punto de Venta")
+	return tea.ClearScreen
 }
 
 func (a *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {

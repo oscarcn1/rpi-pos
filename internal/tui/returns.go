@@ -299,20 +299,7 @@ var (
 func (m returnsModel) view() string {
 	var b strings.Builder
 
-	b.WriteString("\n")
-	b.WriteString(titleStyle.Render(" Devoluciones "))
-	b.WriteString("\n")
-
-	switch m.state {
-	case returnListSales:
-		b.WriteString(instructionStyle.Render("Selecciona la venta a devolver. Las más recientes aparecen primero."))
-	case returnViewSale:
-		b.WriteString(instructionStyle.Render("Elige devolución total (t) o parcial (p) para seleccionar artículos."))
-	case returnPickItem:
-		b.WriteString(instructionStyle.Render("Usa Espacio para marcar los artículos a devolver, luego Enter."))
-	case returnInputReason:
-		b.WriteString(instructionStyle.Render("Escribe la razón de la devolución y presiona Enter para confirmar."))
-	}
+	b.WriteString(subtitleStyle.Render("  Devoluciones"))
 	b.WriteString("\n\n")
 
 	if m.message != "" {

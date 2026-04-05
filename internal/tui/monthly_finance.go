@@ -90,11 +90,8 @@ func (m monthlyFinanceModel) update(msg tea.Msg) (monthlyFinanceModel, tea.Cmd) 
 func (m monthlyFinanceModel) view() string {
 	var b strings.Builder
 
+	b.WriteString(subtitleStyle.Render("  Finanzas Mensuales"))
 	b.WriteString("\n")
-	b.WriteString(titleStyle.Render(" Finanzas Mensuales "))
-	b.WriteString("\n")
-	b.WriteString(instructionStyle.Render("Resumen financiero del mes con gráfica de ventas diarias."))
-	b.WriteString("\n\n")
 
 	// Month navigation
 	nav := fmt.Sprintf("◀  %s %d  ▶", monthNames[m.month], m.year)
@@ -122,7 +119,7 @@ func (m monthlyFinanceModel) view() string {
 		fmtI(r.TotalSales), fmtP(r.TotalIncome), fmtP(r.TotalCost),
 		fmtP(r.Profit), fmtP(r.AvgDailySales), fmtQ(r.TotalShrinkage))
 	b.WriteString(boxStyle.Render(summary))
-	b.WriteString("\n\n")
+	b.WriteString("\n")
 
 	// Comparison with previous month
 	if r.HasPrev {
@@ -132,13 +129,12 @@ func (m monthlyFinanceModel) view() string {
 		b.WriteString(fmtPct("Ganancia", r.Profit, r.PrevProfit))
 		b.WriteString("  ")
 		b.WriteString(fmtPct("Ventas", float64(r.TotalSales), float64(r.PrevSales)))
-		b.WriteString("\n\n")
+		b.WriteString("\n")
 	}
 
 	// Bar chart
 	m.viewChart(&b, r)
 
-	b.WriteString("\n")
 	b.WriteString("  " + hKey(hkNav, "←→/hl", "cambiar mes") + hSep() + hKey(hkNav, "esc/enter", "volver al menú"))
 	b.WriteString("\n")
 	return b.String()
@@ -146,7 +142,7 @@ func (m monthlyFinanceModel) view() string {
 
 func (m monthlyFinanceModel) viewChart(b *strings.Builder, r *models.MonthlyFinanceReport) {
 	b.WriteString(subtitleStyle.Render("  Ventas diarias:"))
-	b.WriteString("\n\n")
+	b.WriteString("\n")
 
 	if r.TotalSales == 0 {
 		b.WriteString(dimStyle.Render("  Sin ventas este mes\n"))

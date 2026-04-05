@@ -3,12 +3,6 @@ package tui
 import "github.com/charmbracelet/lipgloss"
 
 var (
-	titleStyle = lipgloss.NewStyle().
-			Bold(true).
-			Foreground(lipgloss.Color("229")).
-			Background(lipgloss.Color("57")).
-			Padding(0, 2)
-
 	subtitleStyle = lipgloss.NewStyle().
 			Bold(true).
 			Foreground(lipgloss.Color("229"))
@@ -47,7 +41,7 @@ var (
 	boxStyle = lipgloss.NewStyle().
 			Border(lipgloss.RoundedBorder()).
 			BorderForeground(lipgloss.Color("57")).
-			Padding(1, 2)
+			Padding(0, 2)
 
 	helpStyle = lipgloss.NewStyle().
 			Foreground(lipgloss.Color("241"))

@@ -44,10 +44,7 @@ func (m dayCloseModel) update(msg tea.Msg) (dayCloseModel, tea.Cmd) {
 func (m dayCloseModel) view() string {
 	var b strings.Builder
 
-	b.WriteString("\n")
-	b.WriteString(titleStyle.Render(" Cierre del Día "))
-	b.WriteString("\n")
-	b.WriteString(instructionStyle.Render("Resumen de ventas, costos y ganancias del día. Revísalo antes de cerrar."))
+	b.WriteString(subtitleStyle.Render("  Cierre del Día"))
 	b.WriteString("\n\n")
 
 	if m.report == nil {
@@ -120,10 +117,7 @@ func (m reorderModel) update(msg tea.Msg) (reorderModel, tea.Cmd) {
 func (m reorderModel) view() string {
 	var b strings.Builder
 
-	b.WriteString("\n")
-	b.WriteString(titleStyle.Render(" Reporte de Reorden "))
-	b.WriteString("\n")
-	b.WriteString(instructionStyle.Render("Productos con stock igual o menor al mínimo. Usa esta lista para hacer pedidos."))
+	b.WriteString(subtitleStyle.Render("  Reporte de Reorden"))
 	b.WriteString("\n\n")
 
 	if m.items == nil {

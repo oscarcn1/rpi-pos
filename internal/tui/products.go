@@ -91,10 +91,7 @@ func (m productsModel) update(msg tea.Msg) (productsModel, tea.Cmd) {
 func (m productsModel) view() string {
 	var b strings.Builder
 
-	b.WriteString("\n")
-	b.WriteString(titleStyle.Render(" Productos "))
-	b.WriteString("\n")
-	b.WriteString(instructionStyle.Render("Lista de productos. Navega con flechas, 'n' para nuevo, 'e' para editar."))
+	b.WriteString(subtitleStyle.Render("  Productos"))
 	b.WriteString("\n\n")
 
 	if m.message != "" {

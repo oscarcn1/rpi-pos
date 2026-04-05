@@ -446,26 +446,7 @@ var (
 func (m saleModel) view() string {
 	var b strings.Builder
 
-	b.WriteString("\n")
-	b.WriteString(titleStyle.Render(" Nueva Venta "))
-	b.WriteString("\n")
-
-	switch m.state {
-	case saleSearching:
-		b.WriteString(instructionStyle.Render("Escribe el nombre o código del producto y presiona Enter."))
-	case salePickResult:
-		b.WriteString(instructionStyle.Render("Usa ↑↓ para elegir un producto y Enter para seleccionarlo."))
-	case saleInputQty:
-		if m.current != nil && m.current.IsMeasured() {
-			b.WriteString(instructionStyle.Render(fmt.Sprintf("Cantidad en %s (acepta decimales, ej: 2.5).", m.current.MeasurementUnit)))
-		} else {
-			b.WriteString(instructionStyle.Render("Escribe la cantidad de piezas."))
-		}
-	case saleCartManage:
-		b.WriteString(instructionStyle.Render("Navega el carrito con ↑↓ y presiona 'd' para quitar un artículo."))
-	case saleInputPayment:
-		b.WriteString(instructionStyle.Render("Monto que paga el cliente. Debe ser igual o mayor al total."))
-	}
+	b.WriteString(subtitleStyle.Render("  Nueva Venta"))
 	b.WriteString("\n\n")
 
 	if m.state == saleDone {

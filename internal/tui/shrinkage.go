@@ -145,22 +145,7 @@ func (m shrinkageModel) handleEnter() (shrinkageModel, tea.Cmd) {
 func (m shrinkageModel) view() string {
 	var b strings.Builder
 
-	b.WriteString("\n")
-	b.WriteString(titleStyle.Render(" Registrar Merma "))
-	b.WriteString("\n")
-
-	switch m.state {
-	case shrinkageCode:
-		b.WriteString(instructionStyle.Render("Escribe el código del producto que tuvo pérdida o daño."))
-	case shrinkageQty:
-		if m.product != nil && m.product.IsMeasured() {
-			b.WriteString(instructionStyle.Render("Escribe la cantidad perdida. Acepta decimales para productos por medida."))
-		} else {
-			b.WriteString(instructionStyle.Render("Escribe la cantidad de piezas perdidas o dañadas."))
-		}
-	case shrinkageReason:
-		b.WriteString(instructionStyle.Render("Describe brevemente la razón de la merma."))
-	}
+	b.WriteString(subtitleStyle.Render("  Registrar Merma"))
 	b.WriteString("\n\n")
 
 	if m.message != "" {

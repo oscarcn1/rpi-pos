@@ -1,0 +1,24 @@
+[Unit]
+Description=POS Terminal
+After=systemd-user-sessions.service
+Conflicts=getty@tty1.service
+
+[Service]
+Type=simple
+Environment=TERM=linux
+ExecStartPre=/bin/sh -c 'stty -F /dev/tty1 rows 37 cols 100; /usr/bin/clear > /dev/tty1'
+ExecStart=/usr/local/bin/pos
+WorkingDirectory=/home/oscar
+StandardInput=tty
+StandardOutput=tty
+TTYPath=/dev/tty1
+TTYReset=yes
+TTYVHangup=yes
+TTYVTDisallocate=yes
+User=oscar
+Group=oscar
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

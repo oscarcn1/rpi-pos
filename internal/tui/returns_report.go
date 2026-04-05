@@ -57,10 +57,7 @@ func (m dayReturnsModel) update(msg tea.Msg) (dayReturnsModel, tea.Cmd) {
 func (m dayReturnsModel) view() string {
 	var b strings.Builder
 
-	b.WriteString("\n")
-	b.WriteString(titleStyle.Render(" Devoluciones del Día "))
-	b.WriteString("\n")
-	b.WriteString(instructionStyle.Render("Usa ← → para cambiar de día."))
+	b.WriteString(subtitleStyle.Render("  Devoluciones del Día"))
 	b.WriteString("\n\n")
 
 	if m.report == nil {
