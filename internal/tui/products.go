@@ -105,12 +105,29 @@ func (m productsModel) view() string {
 	if len(m.products) == 0 {
 		b.WriteString(dimStyle.Render("  No hay productos registrados\n"))
 	} else {
+		maxVisible := 20
+		total := len(m.products)
+
+		start := m.cursor - maxVisible/2
+		if start < 0 {
+			start = 0
+		}
+		end := start + maxVisible
+		if end > total {
+			end = total
+			start = end - maxVisible
+			if start < 0 {
+				start = 0
+			}
+		}
+
 		var tbl strings.Builder
 		header := fmt.Sprintf(" %-10s %-24s %10s %10s %8s",
 			"Código", "Nombre", "P.Venta", "Stock", "Tipo")
 		tbl.WriteString(tableHeaderRow.Render(header) + "\n")
 
-		for i, p := range m.products {
+		for i := start; i < end; i++ {
+			p := m.products[i]
 			stockStr := p.StockLabel()
 			typeStr := "pza"
 			if p.IsMeasured() {
@@ -126,6 +143,11 @@ func (m productsModel) view() string {
 			}
 		}
 		b.WriteString(tableBoxStyle.Render(tbl.String()))
+
+		if total > maxVisible {
+			b.WriteString("\n" + dimStyle.Render(fmt.Sprintf("  Mostrando %s-%s de %s productos",
+				fmtI(start+1), fmtI(end), fmtI(total))))
+		}
 	}
 
 	b.WriteString("\n")

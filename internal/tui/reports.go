@@ -87,8 +87,9 @@ func (m dayCloseModel) view() string {
 type reorderLoadedMsg []models.ReorderItem
 
 type reorderModel struct {
-	store *store.Store
-	items []models.ReorderItem
+	store  *store.Store
+	items  []models.ReorderItem
+	scroll int
 }
 
 func newReorderModel(s *store.Store) reorderModel {
@@ -106,9 +107,19 @@ func (m reorderModel) update(msg tea.Msg) (reorderModel, tea.Cmd) {
 	switch msg := msg.(type) {
 	case reorderLoadedMsg:
 		m.items = msg
+		m.scroll = 0
 	case tea.KeyMsg:
-		if msg.String() == "esc" || msg.String() == "enter" {
+		switch msg.String() {
+		case "esc", "enter":
 			return m, func() tea.Msg { return switchScreenMsg{screen: screenMenu} }
+		case "down", "j":
+			if m.items != nil && m.scroll < len(m.items)-1 {
+				m.scroll++
+			}
+		case "up", "k":
+			if m.scroll > 0 {
+				m.scroll--
+			}
 		}
 	}
 	return m, nil
@@ -129,12 +140,22 @@ func (m reorderModel) view() string {
 		b.WriteString(successStyle.Render("  Todos los productos tienen stock suficiente"))
 		b.WriteString("\n")
 	} else {
+		maxVisible := 20
+		total := len(m.items)
+
+		start := m.scroll
+		end := start + maxVisible
+		if end > total {
+			end = total
+		}
+
 		var tbl strings.Builder
 		header := fmt.Sprintf(" %-10s %-22s %10s %10s %10s",
 			"Código", "Nombre", "Stock", "Mínimo", "Faltan")
 		tbl.WriteString(tableHeaderRow.Render(header) + "\n")
 
-		for _, item := range m.items {
+		for i := start; i < end; i++ {
+			item := m.items[i]
 			p := item.Product
 			line := fmt.Sprintf(" %-10s %-22s %10s %10s %10s",
 				truncate(p.Code, 10), truncate(p.Name, 22),
@@ -147,12 +168,17 @@ func (m reorderModel) view() string {
 		}
 		b.WriteString(tableBoxStyle.Render(tbl.String()))
 
-		b.WriteString(fmt.Sprintf("\n  %s\n",
-			warnStyle.Render(fmt.Sprintf("Total: %s productos necesitan reorden", fmtI(len(m.items))))))
+		b.WriteString(fmt.Sprintf("\n  %s",
+			warnStyle.Render(fmt.Sprintf("Total: %s productos necesitan reorden", fmtI(total)))))
+		if total > maxVisible {
+			b.WriteString(dimStyle.Render(fmt.Sprintf("  (mostrando %s-%s)",
+				fmtI(start+1), fmtI(end))))
+		}
+		b.WriteString("\n")
 	}
 
 	b.WriteString("\n")
-	b.WriteString("  " + hKey(hkNav, "esc/enter", "volver al menú"))
+	b.WriteString("  " + hKey(hkNav, "↑↓", "desplazar") + hSep() + hKey(hkNav, "esc/enter", "volver al menú"))
 	b.WriteString("\n")
 	return b.String()
 }

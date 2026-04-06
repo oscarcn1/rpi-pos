@@ -477,11 +477,29 @@ func (m saleModel) view() string {
 
 	if (m.state == saleSearching || m.state == salePickResult) && len(m.results) > 0 {
 		b.WriteString("\n")
+
+		maxVisible := 8
+		total := len(m.results)
+
+		start := m.resCur - maxVisible/2
+		if start < 0 {
+			start = 0
+		}
+		end := start + maxVisible
+		if end > total {
+			end = total
+			start = end - maxVisible
+			if start < 0 {
+				start = 0
+			}
+		}
+
 		header := fmt.Sprintf(" %-8s %-26s %12s %12s",
 			"Código", "Producto", "Precio", "Stock")
 		b.WriteString("  " + resultHeaderStyle.Render(header) + "\n")
 
-		for i, p := range m.results {
+		for i := start; i < end; i++ {
+			p := m.results[i]
 			priceLabel := fmt.Sprintf("%s/%s", fmtP(p.SalePrice), p.UnitLabel())
 			row := fmt.Sprintf(" %-8s %-26s %12s %12s",
 				truncate(p.Code, 8), truncate(p.Name, 26), priceLabel, p.StockLabel())
@@ -494,6 +512,11 @@ func (m saleModel) view() string {
 			} else {
 				b.WriteString("  " + resultNormalStyle.Render(row) + "\n")
 			}
+		}
+
+		if total > maxVisible {
+			b.WriteString("  " + dimStyle.Render(fmt.Sprintf("Mostrando %s-%s de %s",
+				fmtI(start+1), fmtI(end), fmtI(total))) + "\n")
 		}
 	}
 

@@ -16,6 +16,7 @@ type dayReturnsModel struct {
 	store  *store.Store
 	report *models.DayReturnsReport
 	date   time.Time
+	scroll int
 }
 
 func newDayReturnsModel(s *store.Store) dayReturnsModel {
@@ -34,6 +35,7 @@ func (m dayReturnsModel) update(msg tea.Msg) (dayReturnsModel, tea.Cmd) {
 	switch msg := msg.(type) {
 	case dayReturnsLoadedMsg:
 		m.report = msg
+		m.scroll = 0
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "esc", "enter":
@@ -48,6 +50,14 @@ func (m dayReturnsModel) update(msg tea.Msg) (dayReturnsModel, tea.Cmd) {
 				m.date = next
 				m.report = nil
 				return m, m.load()
+			}
+		case "down", "j":
+			if m.report != nil && m.scroll < len(m.report.Returns)-1 {
+				m.scroll++
+			}
+		case "up", "k":
+			if m.scroll > 0 {
+				m.scroll--
 			}
 		}
 	}
@@ -84,12 +94,22 @@ func (m dayReturnsModel) view() string {
 		b.WriteString(successStyle.Render("  No hay devoluciones en este día"))
 		b.WriteString("\n")
 	} else {
+		maxVisible := 14
+		total := len(r.Returns)
+
+		start := m.scroll
+		end := start + maxVisible
+		if end > total {
+			end = total
+		}
+
 		var tbl strings.Builder
 		header := fmt.Sprintf(" %-5s %-6s %-28s %8s %10s",
 			"#", "Venta", "Razón", "Arts.", "Monto")
 		tbl.WriteString(tableHeaderRow.Render(header) + "\n")
 
-		for _, rs := range r.Returns {
+		for i := start; i < end; i++ {
+			rs := r.Returns[i]
 			reason := rs.Reason
 			if reason == "" {
 				reason = "(sin razón)"
@@ -99,10 +119,15 @@ func (m dayReturnsModel) view() string {
 			tbl.WriteString(warnStyle.Render(line) + "\n")
 		}
 		b.WriteString(tableBoxStyle.Render(tbl.String()))
+
+		if total > maxVisible {
+			b.WriteString("\n" + dimStyle.Render(fmt.Sprintf("  Mostrando %s-%s de %s devoluciones",
+				fmtI(start+1), fmtI(end), fmtI(total))))
+		}
 	}
 
 	b.WriteString("\n")
-	b.WriteString("  " + hKey(hkNav, "← →", "cambiar día") + "  " + hKey(hkNav, "esc/enter", "volver al menú"))
+	b.WriteString("  " + hKey(hkNav, "↑↓", "desplazar") + hSep() + hKey(hkNav, "← →", "cambiar día") + hSep() + hKey(hkNav, "esc/enter", "volver al menú"))
 	b.WriteString("\n")
 	return b.String()
 }

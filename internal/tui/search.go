@@ -70,14 +70,31 @@ func (m searchModel) view() string {
 		if len(m.results) == 0 {
 			b.WriteString(dimStyle.Render("  Sin resultados\n"))
 		} else {
-			b.WriteString(fmt.Sprintf("  %s\n", dimStyle.Render(fmt.Sprintf("%d resultado(s)", len(m.results)))))
+			maxVisible := 18
+			total := len(m.results)
+
+			start := m.cursor - maxVisible/2
+			if start < 0 {
+				start = 0
+			}
+			end := start + maxVisible
+			if end > total {
+				end = total
+				start = end - maxVisible
+				if start < 0 {
+					start = 0
+				}
+			}
+
+			b.WriteString(fmt.Sprintf("  %s\n", dimStyle.Render(fmt.Sprintf("%d resultado(s)", total))))
 
 			var tbl strings.Builder
 			header := fmt.Sprintf(" %-10s %-20s %-10s %10s %10s %8s",
 				"Código", "Nombre", "Categoría", "P.Venta", "Stock", "Tipo")
 			tbl.WriteString(tableHeaderRow.Render(header) + "\n")
 
-			for i, p := range m.results {
+			for i := start; i < end; i++ {
+				p := m.results[i]
 				line := fmt.Sprintf(" %-10s %-20s %-10s %10s %10s %8s",
 					truncate(p.Code, 10), truncate(p.Name, 20), truncate(p.Category, 10),
 					fmtP(p.SalePrice), p.StockLabel(), p.UnitLabel())
@@ -90,6 +107,11 @@ func (m searchModel) view() string {
 				}
 			}
 			b.WriteString(tableBoxStyle.Render(tbl.String()))
+
+			if total > maxVisible {
+				b.WriteString("\n" + dimStyle.Render(fmt.Sprintf("  Mostrando %s-%s de %s resultados",
+					fmtI(start+1), fmtI(end), fmtI(total))))
+			}
 		}
 	}
 
