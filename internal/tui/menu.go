@@ -66,8 +66,6 @@ func (m menuModel) update(msg tea.Msg) (menuModel, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
-		case "q", "Q":
-			return m, tea.Quit
 		case "up", "k":
 			if m.cursor > 0 {
 				m.cursor--
@@ -118,7 +116,7 @@ func (m menuModel) view() string {
 	b.WriteString(menuBoxStyle.Render(items.String()))
 
 	b.WriteString("\n\n")
-	b.WriteString("  " + hKey(hkNav, "↑↓/jk", "navegar") + hSep() + hKey(hkOk, "enter/1-0", "seleccionar") + hSep() + hKey(hkDel, "q", "salir"))
+	b.WriteString("  " + hKey(hkNav, "↑↓/jk", "navegar") + hSep() + hKey(hkOk, "enter/1-0", "seleccionar"))
 	b.WriteString("\n")
 
 	return b.String()

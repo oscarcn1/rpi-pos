@@ -89,7 +89,7 @@ func (m inventoryModel) view() string {
 	b.WriteString(subtitleStyle.Render("  Detalle de productos:"))
 	b.WriteString("\n")
 
-	maxVisible := 6
+	maxVisible := 1
 	start := m.scroll
 	end := start + maxVisible
 	if end > len(r.Items) {
