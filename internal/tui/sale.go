@@ -537,8 +537,24 @@ func (m saleModel) viewCart(b *strings.Builder) {
 	b.WriteString(cartHeaderStyle.Render(fmt.Sprintf("Artículos en la venta (%d)", len(m.cart))))
 	b.WriteString("\n")
 
+	maxVisible := 8
+	total := len(m.cart)
+	start := m.cartCur - maxVisible/2
+	if start < 0 {
+		start = 0
+	}
+	end := start + maxVisible
+	if end > total {
+		end = total
+		start = end - maxVisible
+		if start < 0 {
+			start = 0
+		}
+	}
+
 	var lines strings.Builder
-	for i, item := range m.cart {
+	for i := start; i < end; i++ {
+		item := m.cart[i]
 		line := fmt.Sprintf(" %2d. %-26s %6s x %9s = %10s",
 			i+1, truncate(item.ProductName, 26), fmtQ(item.Quantity), fmtP(item.UnitPrice), fmtP(item.Subtotal))
 
@@ -551,7 +567,10 @@ func (m saleModel) viewCart(b *strings.Builder) {
 	}
 
 	b.WriteString(saleBoxStyle.Render(lines.String()))
-	b.WriteString("\n")
+	if total > maxVisible {
+		b.WriteString("  " + dimStyle.Render(fmt.Sprintf("Mostrando %s-%s de %s artículos",
+			fmtI(start+1), fmtI(end), fmtI(total))) + "\n")
+	}
 	b.WriteString(totalBarStyle.Render(fmt.Sprintf("TOTAL: %s ", fmtP(m.total))))
 	b.WriteString("\n")
 }

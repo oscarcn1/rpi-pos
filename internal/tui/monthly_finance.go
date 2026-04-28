@@ -158,7 +158,7 @@ func (m monthlyFinanceModel) viewChart(b *strings.Builder, r *models.MonthlyFina
 	}
 
 	blocks := []rune{' ', '▁', '▂', '▃', '▄', '▅', '▆', '▇', '█'}
-	chartHeight := 14
+	chartHeight := 13
 
 	// Render vertical bar chart (8 rows, top to bottom)
 	for row := chartHeight; row >= 1; row-- {
