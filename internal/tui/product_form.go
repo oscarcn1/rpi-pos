@@ -240,7 +240,7 @@ func (m productFormModel) view() string {
 	if m.editing != nil {
 		title = "Editar Producto"
 	}
-	b.WriteString(subtitleStyle.Render("  " + title))
+	b.WriteString(screenTitleStyle.Render(title))
 	if m.measured {
 		b.WriteString("  " + dimStyle.Render("P.Compra por unidad de compra · P.Venta por unidad de medida"))
 	}

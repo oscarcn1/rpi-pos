@@ -145,7 +145,7 @@ func (m shrinkageModel) handleEnter() (shrinkageModel, tea.Cmd) {
 func (m shrinkageModel) view() string {
 	var b strings.Builder
 
-	b.WriteString(subtitleStyle.Render("  Registrar Merma"))
+	b.WriteString(screenTitleStyle.Render("Registrar Merma"))
 	b.WriteString("\n\n")
 
 	if m.message != "" {

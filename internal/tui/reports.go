@@ -44,7 +44,7 @@ func (m dayCloseModel) update(msg tea.Msg) (dayCloseModel, tea.Cmd) {
 func (m dayCloseModel) view() string {
 	var b strings.Builder
 
-	b.WriteString(subtitleStyle.Render("  Cierre del Día"))
+	b.WriteString(screenTitleStyle.Render("Cierre del Día"))
 	b.WriteString("\n\n")
 
 	if m.report == nil {
@@ -128,7 +128,7 @@ func (m reorderModel) update(msg tea.Msg) (reorderModel, tea.Cmd) {
 func (m reorderModel) view() string {
 	var b strings.Builder
 
-	b.WriteString(subtitleStyle.Render("  Reporte de Reorden"))
+	b.WriteString(screenTitleStyle.Render("Reporte de Reorden"))
 	b.WriteString("\n\n")
 
 	if m.items == nil {
@@ -166,7 +166,7 @@ func (m reorderModel) view() string {
 				tbl.WriteString(warnStyle.Render(line) + "\n")
 			}
 		}
-		b.WriteString(tableBoxStyle.Render(tbl.String()))
+		b.WriteString(tableBox("214").Render(tbl.String()))
 
 		b.WriteString(fmt.Sprintf("\n  %s",
 			warnStyle.Render(fmt.Sprintf("Total: %s productos necesitan reorden", fmtI(total)))))

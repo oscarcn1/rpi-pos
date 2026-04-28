@@ -61,7 +61,7 @@ func (m searchModel) update(msg tea.Msg) (searchModel, tea.Cmd) {
 func (m searchModel) view() string {
 	var b strings.Builder
 
-	b.WriteString(subtitleStyle.Render("  Buscar Producto"))
+	b.WriteString(screenTitleStyle.Render("Buscar Producto"))
 	b.WriteString("\n\n")
 
 	b.WriteString("  " + m.input.View() + "\n\n")
@@ -106,7 +106,7 @@ func (m searchModel) view() string {
 					tbl.WriteString(tableRowNormal.Render(line) + "\n")
 				}
 			}
-			b.WriteString(tableBoxStyle.Render(tbl.String()))
+			b.WriteString(tableBox("75").Render(tbl.String()))
 
 			if total > maxVisible {
 				b.WriteString("\n" + dimStyle.Render(fmt.Sprintf("  Mostrando %s-%s de %s resultados",

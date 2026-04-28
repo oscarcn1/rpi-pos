@@ -8,21 +8,45 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-var menuItems = []struct {
+type menuItem struct {
 	key    string
 	label  string
 	screen screen
-}{
-	{"1", "Nueva Venta", screenSale},
-	{"2", "Productos", screenProducts},
-	{"3", "Registrar Merma", screenShrinkage},
-	{"4", "Buscar Producto", screenSearch},
-	{"5", "Cierre del Día", screenDayClose},
-	{"6", "Reporte de Reorden", screenReorder},
-	{"7", "Reporte de Inventario", screenInventory},
-	{"8", "Finanzas Mensuales", screenMonthlyFinance},
-	{"9", "Devoluciones", screenReturns},
-	{"0", "Devoluciones del Día", screenDayReturns},
+}
+
+type menuCategory struct {
+	name  string
+	color lipgloss.Color
+	items []menuItem
+}
+
+var menuCategories = []menuCategory{
+	{"Ventas", lipgloss.Color("42"), []menuItem{
+		{"1", "Nueva Venta", screenSale},
+		{"9", "Devoluciones", screenReturns},
+		{"0", "Devoluciones del Día", screenDayReturns},
+	}},
+	{"Reportes", lipgloss.Color("75"), []menuItem{
+		{"5", "Cierre del Día", screenDayClose},
+		{"6", "Reporte de Reorden", screenReorder},
+		{"7", "Reporte de Inventario", screenInventory},
+		{"8", "Finanzas Mensuales", screenMonthlyFinance},
+	}},
+	{"Sistema", lipgloss.Color("214"), []menuItem{
+		{"2", "Productos", screenProducts},
+		{"3", "Registrar Merma", screenShrinkage},
+		{"4", "Buscar Producto", screenSearch},
+		{"w", "Conectarse a WiFi", screenWifi},
+	}},
+}
+
+// flatItems returns all menu items in order for cursor navigation
+func flatItems() []menuItem {
+	var items []menuItem
+	for _, cat := range menuCategories {
+		items = append(items, cat.items...)
+	}
+	return items
 }
 
 var (
@@ -63,6 +87,7 @@ func newMenuModel() menuModel {
 }
 
 func (m menuModel) update(msg tea.Msg) (menuModel, tea.Cmd) {
+	items := flatItems()
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
@@ -71,21 +96,21 @@ func (m menuModel) update(msg tea.Msg) (menuModel, tea.Cmd) {
 				m.cursor--
 			}
 		case "down", "j":
-			if m.cursor < len(menuItems)-1 {
+			if m.cursor < len(items)-1 {
 				m.cursor++
 			}
 		case "enter":
 			return m, func() tea.Msg {
-				return switchScreenMsg{screen: menuItems[m.cursor].screen}
+				return switchScreenMsg{screen: items[m.cursor].screen}
 			}
-		case "1", "2", "3", "4", "5", "6", "7", "8", "9", "0":
-			idx := int(msg.String()[0] - '1')
-			if msg.String() == "0" {
-				idx = 9
-			}
-			if idx >= 0 && idx < len(menuItems) {
-				return m, func() tea.Msg {
-					return switchScreenMsg{screen: menuItems[idx].screen}
+		default:
+			key := msg.String()
+			for i, item := range items {
+				if item.key == key {
+					idx := i
+					return m, func() tea.Msg {
+						return switchScreenMsg{screen: items[idx].screen}
+					}
 				}
 			}
 		}
@@ -99,24 +124,37 @@ func (m menuModel) view() string {
 	b.WriteString("\n")
 	b.WriteString(logoBorder.Render(asciiLogo))
 	b.WriteString("\n\n")
-	b.WriteString(instructionStyle.Render("Selecciona una opción con los números o navega con las flechas."))
-	b.WriteString("\n\n")
 
-	// Build menu items inside a box
-	var items strings.Builder
-	for i, item := range menuItems {
-		label := fmt.Sprintf("  [%s]  %-28s", item.key, item.label)
-		if i == m.cursor {
-			items.WriteString(menuSelectedStyle.Render(padRight(label, 38)))
-		} else {
-			items.WriteString(menuNormalStyle.Render(label))
+	// Build menu items with category headers
+	var content strings.Builder
+	idx := 0
+	for _, cat := range menuCategories {
+		// Category header: ── Ventas ──────
+		catLabel := fmt.Sprintf("── %s ", cat.name)
+		fill := 36 - len(catLabel)
+		if fill < 0 {
+			fill = 0
 		}
-		items.WriteString("\n")
+		catLine := catLabel + strings.Repeat("─", fill)
+		catStyle := lipgloss.NewStyle().Bold(true).Foreground(cat.color)
+		content.WriteString(catStyle.Render(catLine))
+		content.WriteString("\n")
+
+		for _, item := range cat.items {
+			label := fmt.Sprintf("  [%s]  %-28s", item.key, item.label)
+			if idx == m.cursor {
+				content.WriteString(menuSelectedStyle.Render(padRight(label, 38)))
+			} else {
+				content.WriteString(menuNormalStyle.Render(label))
+			}
+			content.WriteString("\n")
+			idx++
+		}
 	}
-	b.WriteString(menuBoxStyle.Render(items.String()))
+	b.WriteString(menuBoxStyle.Render(content.String()))
 
 	b.WriteString("\n\n")
-	b.WriteString("  " + hKey(hkNav, "↑↓/jk", "navegar") + hSep() + hKey(hkOk, "enter/1-0", "seleccionar"))
+	b.WriteString("  " + hKey(hkNav, "↑↓/jk", "navegar") + hSep() + hKey(hkOk, "enter/1-0/w", "seleccionar"))
 	b.WriteString("\n")
 
 	return b.String()

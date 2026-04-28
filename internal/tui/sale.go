@@ -446,7 +446,7 @@ var (
 func (m saleModel) view() string {
 	var b strings.Builder
 
-	b.WriteString(subtitleStyle.Render("  Nueva Venta"))
+	b.WriteString(screenTitleStyle.Render("Nueva Venta"))
 	b.WriteString("\n\n")
 
 	if m.state == saleDone {

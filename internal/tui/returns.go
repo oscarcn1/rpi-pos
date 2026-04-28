@@ -299,7 +299,7 @@ var (
 func (m returnsModel) view() string {
 	var b strings.Builder
 
-	b.WriteString(subtitleStyle.Render("  Devoluciones"))
+	b.WriteString(screenTitleStyle.Render("Devoluciones"))
 	b.WriteString("\n\n")
 
 	if m.message != "" {
@@ -360,7 +360,7 @@ func (m returnsModel) viewSalesList(b *strings.Builder) {
 			tbl.WriteString(tableRowNormal.Render(line) + "\n")
 		}
 	}
-	b.WriteString(tableBoxStyle.Render(tbl.String()))
+	b.WriteString(tableBox("75").Render(tbl.String()))
 
 	if len(m.sales) > 10 {
 		b.WriteString("\n" + dimStyle.Render(fmt.Sprintf("  Mostrando %s-%s de %s ventas",
@@ -412,7 +412,7 @@ func (m returnsModel) viewSaleDetail(b *strings.Builder) {
 			tbl.WriteString(tableRowNormal.Render(line) + "\n")
 		}
 	}
-	b.WriteString(tableBoxStyle.Render(tbl.String()))
+	b.WriteString(tableBox("75").Render(tbl.String()))
 	b.WriteString("\n")
 
 	// Show return total if items selected

@@ -90,7 +90,7 @@ func (m monthlyFinanceModel) update(msg tea.Msg) (monthlyFinanceModel, tea.Cmd) 
 func (m monthlyFinanceModel) view() string {
 	var b strings.Builder
 
-	b.WriteString(subtitleStyle.Render("  Finanzas Mensuales"))
+	b.WriteString(screenTitleStyle.Render("Finanzas Mensuales"))
 	b.WriteString("\n")
 
 	// Month navigation

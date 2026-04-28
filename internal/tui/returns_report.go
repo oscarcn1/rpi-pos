@@ -67,7 +67,7 @@ func (m dayReturnsModel) update(msg tea.Msg) (dayReturnsModel, tea.Cmd) {
 func (m dayReturnsModel) view() string {
 	var b strings.Builder
 
-	b.WriteString(subtitleStyle.Render("  Devoluciones del Día"))
+	b.WriteString(screenTitleStyle.Render("Devoluciones del Día"))
 	b.WriteString("\n\n")
 
 	if m.report == nil {
@@ -118,7 +118,7 @@ func (m dayReturnsModel) view() string {
 				rs.ID, rs.SaleID, truncate(reason, 28), fmtI(rs.ItemCount), fmtP(rs.Total))
 			tbl.WriteString(warnStyle.Render(line) + "\n")
 		}
-		b.WriteString(tableBoxStyle.Render(tbl.String()))
+		b.WriteString(tableBox("75").Render(tbl.String()))
 
 		if total > maxVisible {
 			b.WriteString("\n" + dimStyle.Render(fmt.Sprintf("  Mostrando %s-%s de %s devoluciones",

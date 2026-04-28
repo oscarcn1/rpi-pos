@@ -91,7 +91,7 @@ func (m productsModel) update(msg tea.Msg) (productsModel, tea.Cmd) {
 func (m productsModel) view() string {
 	var b strings.Builder
 
-	b.WriteString(subtitleStyle.Render("  Productos"))
+	b.WriteString(screenTitleStyle.Render("Productos"))
 	b.WriteString("\n\n")
 
 	if m.message != "" {
@@ -142,7 +142,7 @@ func (m productsModel) view() string {
 				tbl.WriteString(tableRowNormal.Render(line) + "\n")
 			}
 		}
-		b.WriteString(tableBoxStyle.Render(tbl.String()))
+		b.WriteString(tableBox("63").Render(tbl.String()))
 
 		if total > maxVisible {
 			b.WriteString("\n" + dimStyle.Render(fmt.Sprintf("  Mostrando %s-%s de %s productos",

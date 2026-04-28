@@ -76,9 +76,46 @@ var (
 			Bold(true).
 			Foreground(lipgloss.Color("229")).
 			Underline(true)
+
+	// Status bar styles (tmux-like)
+	statusBarLeft = lipgloss.NewStyle().
+			Bold(true).
+			Foreground(lipgloss.Color("0")).
+			Background(lipgloss.Color("42")).
+			Padding(0, 1)
+
+	statusBarCenter = lipgloss.NewStyle().
+				Foreground(lipgloss.Color("255")).
+				Background(lipgloss.Color("27")).
+				Padding(0, 1)
+
+	statusBarRightOk = lipgloss.NewStyle().
+				Foreground(lipgloss.Color("0")).
+				Background(lipgloss.Color("42")).
+				Padding(0, 1)
+
+	statusBarRightNo = lipgloss.NewStyle().
+				Foreground(lipgloss.Color("255")).
+				Background(lipgloss.Color("196")).
+				Padding(0, 1)
+
+	statusBarFill = lipgloss.NewStyle().
+			Background(lipgloss.Color("236"))
+
+	// Screen title ribbon
+	screenTitleStyle = lipgloss.NewStyle().
+				Bold(true).
+				Foreground(lipgloss.Color("255")).
+				Background(lipgloss.Color("27")).
+				Padding(0, 1).
+				Width(94)
 )
 
 func hSep() string { return hkDim.Render(" · ") }
+
+func tableBox(color string) lipgloss.Style {
+	return tableBoxStyle.BorderForeground(lipgloss.Color(color))
+}
 
 func hKey(style lipgloss.Style, key, label string) string {
 	return style.Render(key+": "+label)
